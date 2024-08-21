@@ -39,7 +39,7 @@ A Node.js-based contact management application that utilizes MongoDB and Mongoos
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/alimansoor419/Contact-Management-App.git
+   git clone https://github.com/yourusername/contact-management-app.git
    cd contact-management-app
    ```
 
