@@ -1,6 +1,7 @@
 import expressAsyncHandler from "express-async-handler";
 import User from "../Models/UserModel.js";
 import argon2 from "argon2";
+import jwt from "jsonwebtoken";
 // @des Register a user
 // @route Post/api/users/register
 // @access Public
@@ -45,7 +46,31 @@ export const registerUser = expressAsyncHandler(async (req, res, next) => {
 // @route Post/api/users/Login
 // @access Public
 export const loginUser = expressAsyncHandler(async (req, res, next) => {
-  res.status(200).json({ message: "Login user" });
+  const { email, password } = req.body;
+  const existingUser = await User.findOne({ email });
+  if (!existingUser) {
+    res.status(404);
+    throw new Error("No user found to login");
+  }
+  if (await argon2.verify(existingUser.password, password)) {
+    // console.log("password matched");
+    // res.status(200).json({ message: "password matched" });
+    const accessToken = jwt.sign(
+      {
+        user: {
+          username: existingUser.username,
+          email: existingUser.email,
+          id: existingUser._id,
+        },
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "10m" }
+    );
+    res.status(200).json({ accessToken: accessToken });
+  } else {
+    res.status(401);
+    throw new Error("Password incorrect");
+  }
 });
 
 // @des Current  user info
